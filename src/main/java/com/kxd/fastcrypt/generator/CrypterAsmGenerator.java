@@ -1,5 +1,11 @@
-package com.kxd.fastcrypt;
+package com.kxd.fastcrypt.generator;
 
+import com.kxd.fastcrypt.Crypter;
+import com.kxd.fastcrypt.NopCrypter;
+import com.kxd.fastcrypt.acceptor.CryptAcceptor;
+import com.kxd.fastcrypt.algorithm.ICryptAlgorithm;
+import com.kxd.fastcrypt.handler.DefaultIterableCryptHandler;
+import com.kxd.fastcrypt.handler.IterableCryptHandler;
 import net.sf.cglib.core.*;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;

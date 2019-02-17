@@ -1,4 +1,4 @@
-package com.kxd.fastcrypt;
+package com.kxd.fastcrypt.acceptor;
 
 import java.lang.reflect.Field;
 

@@ -1,4 +1,4 @@
-package com.kxd.fastcrypt;
+package com.kxd.fastcrypt.algorithm;
 
 /**
  * @author mengqingyan 2019/2/14

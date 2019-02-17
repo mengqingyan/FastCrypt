@@ -1,4 +1,8 @@
-package com.kxd.fastcrypt;
+package com.kxd.fastcrypt.handler;
+
+import com.kxd.fastcrypt.Crypter;
+import com.kxd.fastcrypt.generator.CrypterGenerator;
+import com.kxd.fastcrypt.generator.CrypterGeneratorAware;
 
 import java.util.Iterator;
 
