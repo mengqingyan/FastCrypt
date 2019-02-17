@@ -1,0 +1,7 @@
+package com.kxd.fastcrypt;
+/**
+ * @author mengqingyan 2019/2/15
+ */
+public interface CrypterGeneratorAware {
+    void setCrypterGenerator(CrypterGenerator crypterGenerator);
+}
