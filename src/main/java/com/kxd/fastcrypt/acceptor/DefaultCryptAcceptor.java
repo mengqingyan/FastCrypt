@@ -1,5 +1,7 @@
 package com.kxd.fastcrypt.acceptor;
 
+import com.kxd.fastcrypt.Encrypt;
+
 import java.lang.reflect.Field;
 
 /**
@@ -15,6 +17,15 @@ public class DefaultCryptAcceptor implements CryptAcceptor {
     }
 
     public boolean acceptField(Field field) {
+        Class<?> fieldType = field.getType();
+        if(fieldType.equals(String.class) && fieldType.isAnnotationPresent(Encrypt.class)) {
+            return true;
+        }
+
+        if(Iterable.class.isAssignableFrom(fieldType)
+                || this.acceptTarget(fieldType)) {
+            return true;
+        }
         return false;
     }
 }

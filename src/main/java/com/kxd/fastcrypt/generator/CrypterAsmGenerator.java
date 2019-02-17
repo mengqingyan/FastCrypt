@@ -12,6 +12,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.Map;
@@ -194,7 +195,11 @@ public class CrypterAsmGenerator implements CrypterGenerator{
             e.store_local(targetLocal);
 //            e.load_local(targetLocal);
 
-            visitTarget(e, targetLocal, target, encryptM);
+            try {
+                visitTarget(e, targetLocal, target, encryptM);
+            } catch (Exception e1) {
+                throw new RuntimeException(e1);
+            }
         }
 
         private void visitTarget(CodeEmitter e, Local targetLocal, Class target, Signature encryptM) {
@@ -208,12 +213,13 @@ public class CrypterAsmGenerator implements CrypterGenerator{
                 PropertyDescriptor getter = (PropertyDescriptor) names.get(setter.getName());
                 if (getter != null) {
 
+                    Field propField = getPropField(getter, target);
 
-                    Class<?> aClass = setter.getPropertyType();
-                    boolean acceptTarget = this.cryptAcceptor.acceptTarget(aClass);
-                    if (!aClass.equals(String.class)
-                            && !Iterable.class.isAssignableFrom(aClass)
-                            && !acceptTarget) {
+                    Class<?> aClass = propField.getType();
+
+
+                    boolean acceptField = this.cryptAcceptor.acceptField(propField);
+                    if (!acceptField) {
                         continue;
                     }
                     MethodInfo read = ReflectUtils.getMethodInfo(getter.getReadMethod());
@@ -256,12 +262,19 @@ public class CrypterAsmGenerator implements CrypterGenerator{
                         e.invoke_interface(ICRYPTALGORITHM, encryptM);
                         e.unbox_or_zero(setterType);
                         e.invoke(write);
-                    } else if (acceptTarget) {
+                    }
+                    else  {
                         visitTarget(e, readLocal, aClass, encryptM);
                     }
                     e.mark(lablex);
                 }
             }
+        }
+
+        private Field getPropField(PropertyDescriptor getter, Class target) {
+
+
+            return null;
         }
 
         protected Object firstInstance(Class type) {

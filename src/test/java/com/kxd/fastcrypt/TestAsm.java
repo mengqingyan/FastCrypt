@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +82,16 @@ public class TestAsm {
             Class<?> propertyType = propertyDescriptor.getPropertyType();
             System.out.println(propertyType);
             System.out.println(propertyDescriptor);
+        }
+    }
+
+    @Test
+    public void testField() throws Exception {
+//        Field idNo = EnBean3.class.getDeclaredField("idNo");
+//        System.out.println(idNo);
+        Field[] fields = EnBean3.class.getDeclaredFields();
+        for (Field field : fields) {
+            System.out.println(field);
         }
     }
 }
