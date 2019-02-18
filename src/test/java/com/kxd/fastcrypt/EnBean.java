@@ -1,6 +1,7 @@
 package com.kxd.fastcrypt;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author mengqingyan 2019/2/14
@@ -22,6 +23,26 @@ public class EnBean {
 
     @Encrypt
     private List<EnBean2> enBean2s;
+    @Encrypt
+    private List<String> subNameList;
+    @Encrypt
+    private Set<String> subNameSet;
+
+    public List<String> getSubNameList() {
+        return subNameList;
+    }
+
+    public void setSubNameList(List<String> subNameList) {
+        this.subNameList = subNameList;
+    }
+
+    public Set<String> getSubNameSet() {
+        return subNameSet;
+    }
+
+    public void setSubNameSet(Set<String> subNameSet) {
+        this.subNameSet = subNameSet;
+    }
 
     public List<EnBean2> getEnBean2s() {
         return enBean2s;
@@ -86,6 +107,8 @@ public class EnBean {
                 ", enBean2=" + enBean2 +
                 ", obj=" + obj +
                 ", enBean2s=" + enBean2s +
+                ", subNameList=" + subNameList +
+                ", subNameSet=" + subNameSet +
                 '}';
     }
 }

@@ -1,6 +1,6 @@
 package com.kxd.fastcrypt.handler;
 
-import java.util.Iterator;
+import java.util.*;
 
 import com.kxd.fastcrypt.Crypter;
 import com.kxd.fastcrypt.generator.CrypterGenerator;
@@ -17,24 +17,53 @@ public class DefaultIterableCryptHandler implements IterableCryptHandler, Crypte
 
     }
 
-    public void handleEncrypt(Iterable iterable) {
+    public Object handleEncrypt(Iterable iterable) {
         Iterator iterator = iterable.iterator();
 
+        List res = new ArrayList();
         while (iterator.hasNext()) {
             Object next = iterator.next();
             Crypter crypter = crypterGenerator.generate(next.getClass());
-            crypter.encrypt(next);
+            Object encrypt = crypter.encrypt(next);
+            res.add(encrypt);
         }
+
+        return returnRes(iterable, res);
     }
 
-    public void handleDecrypt(Iterable iterable) {
+    public Object handleDecrypt(Iterable iterable) {
         Iterator iterator = iterable.iterator();
 
+        List res = new ArrayList();
         while (iterator.hasNext()) {
             Object next = iterator.next();
             Crypter crypter = crypterGenerator.generate(next.getClass());
-            crypter.decrypt(next);
+            Object encrypt = crypter.decrypt(next);
+            res.add(encrypt);
         }
+
+        return returnRes(iterable, res);
+    }
+
+    private Object returnRes(Iterable iterable, List res) {
+
+        Class<? extends Iterable> iterableClass = iterable.getClass();
+        String iterableClassName = iterableClass.getName();
+        if("java.util.Arrays$ArrayList".equals(iterableClassName)) {
+            return Arrays.asList(res);
+        }
+
+        if(iterable instanceof Collection) {
+            Collection collection = null;
+            try {
+                collection = (Collection) iterable.getClass().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            collection.addAll(res);
+            return collection;
+        }
+        return iterable;
     }
 
     public void setCrypterGenerator(CrypterGenerator crypterGenerator) {

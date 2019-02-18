@@ -4,12 +4,10 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.junit.Test;
 
-import com.kxd.fastcrypt.acceptor.DefaultCryptAcceptor;
 import com.kxd.fastcrypt.algorithm.DefaultCryptAlgorithm;
 import com.kxd.fastcrypt.generator.CrypterAsmGenerator;
 
@@ -32,7 +30,6 @@ public class TestAsm {
         CrypterAsmGenerator crypterAsmGenerator = new CrypterAsmGenerator();
 
         crypterAsmGenerator.setCryptAlgorithm(cryptAlgorithm);
-        crypterAsmGenerator.setCryptAcceptor(new DefaultCryptAcceptor());
 
         Crypter crypter = crypterAsmGenerator.generate(targetClazz);
 
@@ -40,6 +37,19 @@ public class TestAsm {
         target.setName("Test target");
         target.setIdNo("123");
         target.setIdType("000");
+
+//        List<String> subNameList = new ArrayList<String>(2);
+//        subNameList.add("subNameList1");
+//        subNameList.add("subNameList2");
+//        target.setSubNameList(subNameList);
+
+        target.setSubNameList(Arrays.asList("subNameList1","subNameList2"));
+
+        Set<String> subNameSet = new HashSet<String>(2);
+        subNameSet.add("subNameSet1");
+        subNameSet.add("subNameSet2");
+        target.setSubNameSet(subNameSet);
+
 
         EnBean2 enBean2 = new EnBean2();
         enBean2.setName("Test enBean2");

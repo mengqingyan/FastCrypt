@@ -9,11 +9,15 @@ public final class StringCrypter implements Crypter {
 
     private ICryptAlgorithm cryptAlgorithm;
 
-    public void encrypt(Object bean) {
-
+    public Object encrypt(Object bean) {
+        return cryptAlgorithm.encrypt((String) bean);
     }
 
-    public void decrypt(Object bean) {
+    public Object decrypt(Object bean) {
+        return cryptAlgorithm.decrypt((String) bean);
+    }
 
+    public void setCryptAlgorithm(ICryptAlgorithm cryptAlgorithm) {
+        this.cryptAlgorithm = cryptAlgorithm;
     }
 }

@@ -13,7 +13,9 @@ import org.springframework.util.ReflectionUtils;
 
 import com.kxd.fastcrypt.Crypter;
 import com.kxd.fastcrypt.NopCrypter;
+import com.kxd.fastcrypt.StringCrypter;
 import com.kxd.fastcrypt.acceptor.CryptAcceptor;
+import com.kxd.fastcrypt.acceptor.DefaultCryptAcceptor;
 import com.kxd.fastcrypt.algorithm.ICryptAlgorithm;
 import com.kxd.fastcrypt.handler.DefaultIterableCryptHandler;
 import com.kxd.fastcrypt.handler.IterableCryptHandler;
@@ -33,17 +35,17 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
     private static final Type EX = TypeUtils.parseType("java.lang.Exception");
 
-    private static final Signature ENCRYPT = new Signature("encrypt", Type.VOID_TYPE,
+    private static final Signature ENCRYPT = new Signature("encrypt", Constants.TYPE_OBJECT,
             new Type[]{Constants.TYPE_OBJECT});
 
-    private static final Signature DECRYPT = new Signature("decrypt", Type.VOID_TYPE,
+    private static final Signature DECRYPT = new Signature("decrypt", Constants.TYPE_OBJECT,
             new Type[]{Constants.TYPE_OBJECT});
 
     private static final Signature encryptM = TypeUtils.parseSignature("String encrypt(String)");
 
     private static final Signature decryptM = TypeUtils.parseSignature("String decrypt(String)");
-    private static final Signature handleEncrypt = TypeUtils.parseSignature("void handleEncrypt(java.lang.Iterable)");
-    private static final Signature handleDecrypt = TypeUtils.parseSignature("void handleDecrypt(java.lang.Iterable)");
+    private static final Signature handleEncrypt = TypeUtils.parseSignature("Object handleEncrypt(java.lang.Iterable)");
+    private static final Signature handleDecrypt = TypeUtils.parseSignature("Object handleDecrypt(java.lang.Iterable)");
 
     public static final Signature constructor2 = TypeUtils.parseConstructor(IterableCryptHandler.class.getCanonicalName() + "," + ICryptAlgorithm.class.getCanonicalName());
 
@@ -57,16 +59,18 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
     private IterableCryptHandler iterableCryptHandler = new DefaultIterableCryptHandler();
 
+    private final StringCrypter stringCrypter = new StringCrypter();
+
     private ICryptAlgorithm cryptAlgorithm;
 
-    private CryptAcceptor cryptAcceptor;
+    private CryptAcceptor cryptAcceptor = new DefaultCryptAcceptor();
 
     public Crypter generate(Class targetClazz) {
         if(!cryptAcceptor.acceptTarget(targetClazz)) {
             return nopCrypter;
         }
         if(targetClazz.equals(String.class)) {
-
+            return stringCrypter;
         }
 
         Generator gen = new Generator();
@@ -88,6 +92,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
     public void setCryptAlgorithm(ICryptAlgorithm cryptAlgorithm) {
         this.cryptAlgorithm = cryptAlgorithm;
+        this.stringCrypter.setCryptAlgorithm(cryptAlgorithm);
     }
 
     public void setCryptAcceptor(CryptAcceptor cryptAcceptor) {
@@ -177,11 +182,14 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
             CodeEmitter e = ce.begin_method(Constants.ACC_PUBLIC, ENCRYPT, null);
             generateMethod(targetType, e, encryptM);
+            e.load_arg(0);
+
             e.return_value();
             e.end_method();
 
             CodeEmitter de = ce.begin_method(Constants.ACC_PUBLIC, DECRYPT, null);
             generateMethod(targetType, de, decryptM);
+            de.load_arg(0);
             de.return_value();
             de.end_method();
 
@@ -193,7 +201,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
             e.load_arg(0);
             Label lable = e.make_label();
             e.ifnonnull(lable);
-
+            e.load_arg(0);
             e.return_value();
             e.mark(lable);
 
@@ -243,6 +251,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
                     Class<?> aClass = propField.getType();
                     if (Iterable.class.isAssignableFrom(aClass)) {
+                        e.load_local(targetLocal);
                         e.load_this();
                         e.getfield("iterableCryptHandler");
 
@@ -254,6 +263,8 @@ public class CrypterAsmGenerator implements CrypterGenerator{
                         } else {
                             e.invoke_interface(ITERABLECRYPTHANDLER, handleDecrypt);
                         }
+                        e.unbox_or_zero(setterType);
+                        e.invoke(write);
 
                     } else if (aClass.equals(String.class)) {
                         e.load_local(targetLocal);
