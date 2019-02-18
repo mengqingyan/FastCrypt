@@ -1,21 +1,24 @@
 package com.kxd.fastcrypt.generator;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.security.ProtectionDomain;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Type;
+import org.springframework.util.ReflectionUtils;
+
 import com.kxd.fastcrypt.Crypter;
 import com.kxd.fastcrypt.NopCrypter;
 import com.kxd.fastcrypt.acceptor.CryptAcceptor;
 import com.kxd.fastcrypt.algorithm.ICryptAlgorithm;
 import com.kxd.fastcrypt.handler.DefaultIterableCryptHandler;
 import com.kxd.fastcrypt.handler.IterableCryptHandler;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.security.ProtectionDomain;
-import java.util.HashMap;
-import java.util.Map;
+import net.sf.cglib.core.*;
 
 /**
  * @author mengqingyan 2019/2/15
@@ -51,6 +54,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
     }
 
     private final NopCrypter nopCrypter = new NopCrypter();
+
     private IterableCryptHandler iterableCryptHandler = new DefaultIterableCryptHandler();
 
     private ICryptAlgorithm cryptAlgorithm;
@@ -61,6 +65,10 @@ public class CrypterAsmGenerator implements CrypterGenerator{
         if(!cryptAcceptor.acceptTarget(targetClazz)) {
             return nopCrypter;
         }
+        if(targetClazz.equals(String.class)) {
+
+        }
+
         Generator gen = new Generator();
         gen.setTarget(targetClazz);
 
@@ -193,7 +201,6 @@ public class CrypterAsmGenerator implements CrypterGenerator{
             e.load_arg(0);
             e.checkcast(targetType);
             e.store_local(targetLocal);
-//            e.load_local(targetLocal);
 
             try {
                 visitTarget(e, targetLocal, target, encryptM);
@@ -215,11 +222,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
                     Field propField = getPropField(getter, target);
 
-                    Class<?> aClass = propField.getType();
-
-
-                    boolean acceptField = this.cryptAcceptor.acceptField(propField);
-                    if (!acceptField) {
+                    if (!this.cryptAcceptor.acceptField(propField)) {
                         continue;
                     }
                     MethodInfo read = ReflectUtils.getMethodInfo(getter.getReadMethod());
@@ -238,6 +241,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
                     e.ifnull(lablex);
 
+                    Class<?> aClass = propField.getType();
                     if (Iterable.class.isAssignableFrom(aClass)) {
                         e.load_this();
                         e.getfield("iterableCryptHandler");
@@ -272,9 +276,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
         }
 
         private Field getPropField(PropertyDescriptor getter, Class target) {
-
-
-            return null;
+            return ReflectionUtils.findField(target, getter.getName());
         }
 
         protected Object firstInstance(Class type) {

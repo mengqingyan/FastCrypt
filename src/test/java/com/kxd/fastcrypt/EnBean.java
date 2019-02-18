@@ -15,10 +15,12 @@ public class EnBean {
     @Encrypt
     private String idNo;
 
+    @Encrypt
     private EnBean2 enBean2;
 
     private Object obj;
 
+    @Encrypt
     private List<EnBean2> enBean2s;
 
     public List<EnBean2> getEnBean2s() {

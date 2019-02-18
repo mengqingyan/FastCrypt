@@ -1,10 +1,10 @@
 package com.kxd.fastcrypt.handler;
 
+import java.util.Iterator;
+
 import com.kxd.fastcrypt.Crypter;
 import com.kxd.fastcrypt.generator.CrypterGenerator;
 import com.kxd.fastcrypt.generator.CrypterGeneratorAware;
-
-import java.util.Iterator;
 
 /**
  * @author mengqingyan 2019/2/15

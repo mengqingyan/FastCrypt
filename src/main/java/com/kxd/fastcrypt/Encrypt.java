@@ -1,15 +1,13 @@
 
 package com.kxd.fastcrypt;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * @author mengqingyan 2019/2/15
  */
+@Documented
 @Target({ElementType.TYPE,ElementType.FIELD})
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Encrypt {
 }
