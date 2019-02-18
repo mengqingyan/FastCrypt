@@ -27,6 +27,16 @@ public class EnBean {
     private List<String> subNameList;
     @Encrypt
     private Set<String> subNameSet;
+    @Encrypt
+    private List otherList;
+
+    public List getOtherList() {
+        return otherList;
+    }
+
+    public void setOtherList(List otherList) {
+        this.otherList = otherList;
+    }
 
     public List<String> getSubNameList() {
         return subNameList;
@@ -109,6 +119,7 @@ public class EnBean {
                 ", enBean2s=" + enBean2s +
                 ", subNameList=" + subNameList +
                 ", subNameSet=" + subNameSet +
+                ", otherList=" + otherList +
                 '}';
     }
 }

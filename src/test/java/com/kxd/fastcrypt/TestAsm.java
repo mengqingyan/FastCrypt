@@ -4,6 +4,8 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 import org.junit.Test;
@@ -37,6 +39,16 @@ public class TestAsm {
         target.setName("Test target");
         target.setIdNo("123");
         target.setIdType("000");
+
+        List otherList = new ArrayList(2);
+        otherList.add("TestOther1");
+        EnBean2 enBean2Other = new EnBean2();
+        enBean2Other.setName("Test enBean2Other");
+        enBean2Other.setIdNo("enBean2Other_123");
+        enBean2Other.setIdType("000");
+        otherList.add(enBean2Other);
+        target.setOtherList(otherList);
+
 
 //        List<String> subNameList = new ArrayList<String>(2);
 //        subNameList.add("subNameList1");
@@ -111,8 +123,19 @@ public class TestAsm {
 //        System.out.println(idNo);
         Field[] fields = EnBean.class.getDeclaredFields();
         for (Field field : fields) {
-            System.out.println(field);
-            System.out.println(field.isAnnotationPresent(Encrypt.class));
+//            System.out.println(field);
+//            System.out.println(field.getGenericType());
+//            System.out.println(field.isAnnotationPresent(Encrypt.class));
+
+            Type genericType = field.getGenericType();
+            if(genericType == null) continue;
+            // 如果是泛型参数的类型
+            if(genericType instanceof ParameterizedType){
+                ParameterizedType pt = (ParameterizedType) genericType;
+                //得到泛型里的class类型对象
+                Class<?> genericClazz = (Class<?>)pt.getActualTypeArguments()[0];
+                System.out.println("field: " + field + ", genericClazz: " + genericClazz);
+            }
         }
     }
 
