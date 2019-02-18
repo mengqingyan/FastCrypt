@@ -229,6 +229,9 @@ public class CrypterAsmGenerator implements CrypterGenerator{
                 if (getter != null) {
 
                     Field propField = getPropField(getter, target);
+                    if(propField == null) {
+                        continue;
+                    }
 
                     if (!this.cryptAcceptor.acceptField(propField)) {
                         continue;
