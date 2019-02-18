@@ -1,5 +1,12 @@
 package com.kxd.fastcrypt;
 
+import com.kxd.fastcrypt.algorithm.DefaultCryptAlgorithm;
+import com.kxd.fastcrypt.generator.CrypterAsmGenerator;
+import net.sf.cglib.beans.BeanCopier;
+import net.sf.cglib.core.Converter;
+import net.sf.cglib.core.DebuggingClassWriter;
+import org.junit.Test;
+
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -7,15 +14,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-
-import org.junit.Test;
-
-import com.kxd.fastcrypt.algorithm.DefaultCryptAlgorithm;
-import com.kxd.fastcrypt.generator.CrypterAsmGenerator;
-
-import net.sf.cglib.beans.BeanCopier;
-import net.sf.cglib.core.Converter;
-import net.sf.cglib.core.DebuggingClassWriter;
 
 /**
  * @author mengqingyan 2019/2/15
@@ -25,7 +23,7 @@ public class TestAsm {
     @Test
     public void testAsm() {
         // 代理类class文件存入本地磁盘
-        System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, "E:\\intellij_workspace\\FastCrypt\\target\\test-classes");
+        System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, "target\\test-classes");
         Class targetClazz = EnBean.class;
 
         DefaultCryptAlgorithm cryptAlgorithm = new DefaultCryptAlgorithm();
