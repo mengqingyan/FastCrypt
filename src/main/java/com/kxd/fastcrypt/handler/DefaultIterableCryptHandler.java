@@ -4,17 +4,16 @@ import java.util.*;
 
 import com.kxd.fastcrypt.Crypter;
 import com.kxd.fastcrypt.generator.CrypterGenerator;
-import com.kxd.fastcrypt.generator.CrypterGeneratorAware;
 
 /**
  * @author mengqingyan 2019/2/15
  */
-public class DefaultIterableCryptHandler implements IterableCryptHandler, CrypterGeneratorAware {
+public class DefaultIterableCryptHandler implements IterableCryptHandler {
 
-    private CrypterGenerator crypterGenerator;
+    private final CrypterGenerator crypterGenerator;
 
-    public DefaultIterableCryptHandler() {
-
+    public DefaultIterableCryptHandler(CrypterGenerator crypterGenerator) {
+        this.crypterGenerator = crypterGenerator;
     }
 
     public Object handleEncrypt(Iterable iterable) {
@@ -66,7 +65,4 @@ public class DefaultIterableCryptHandler implements IterableCryptHandler, Crypte
         return iterable;
     }
 
-    public void setCrypterGenerator(CrypterGenerator crypterGenerator) {
-        this.crypterGenerator = crypterGenerator;
-    }
 }

@@ -1,5 +1,16 @@
 package com.kxd.fastcrypt.generator;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.security.ProtectionDomain;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Type;
+import org.springframework.util.ReflectionUtils;
+
 import com.kxd.fastcrypt.Crypter;
 import com.kxd.fastcrypt.NopCrypter;
 import com.kxd.fastcrypt.StringCrypter;
@@ -8,17 +19,8 @@ import com.kxd.fastcrypt.acceptor.DefaultCryptAcceptor;
 import com.kxd.fastcrypt.algorithm.ICryptAlgorithm;
 import com.kxd.fastcrypt.handler.DefaultIterableCryptHandler;
 import com.kxd.fastcrypt.handler.IterableCryptHandler;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
-import org.springframework.util.ReflectionUtils;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.security.ProtectionDomain;
-import java.util.HashMap;
-import java.util.Map;
+import net.sf.cglib.core.*;
 
 /**
  * @author mengqingyan 2019/2/15
@@ -55,7 +57,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
     private final NopCrypter nopCrypter = new NopCrypter();
 
-    private IterableCryptHandler iterableCryptHandler = new DefaultIterableCryptHandler();
+    private IterableCryptHandler iterableCryptHandler = new DefaultIterableCryptHandler(this);
 
     private final StringCrypter stringCrypter = new StringCrypter();
 
@@ -74,10 +76,6 @@ public class CrypterAsmGenerator implements CrypterGenerator{
         Generator gen = new Generator();
         gen.setTarget(targetClazz);
 
-        if(iterableCryptHandler instanceof CrypterGeneratorAware) {
-            CrypterGeneratorAware crypterGeneratorAware = (CrypterGeneratorAware) iterableCryptHandler;
-            crypterGeneratorAware.setCrypterGenerator(this);
-        }
         gen.setIterableCryptHandler(iterableCryptHandler);
         gen.setCryptAlgorithm(cryptAlgorithm);
         gen.setCryptAcceptor(cryptAcceptor);
@@ -86,6 +84,10 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
     public void setIterableCryptHandler(IterableCryptHandler iterableCryptHandler) {
         this.iterableCryptHandler = iterableCryptHandler;
+        if(this.iterableCryptHandler instanceof CrypterGeneratorAware) {
+            CrypterGeneratorAware crypterGeneratorAware = (CrypterGeneratorAware) iterableCryptHandler;
+            crypterGeneratorAware.setCrypterGenerator(this);
+        }
     }
 
     public void setCryptAlgorithm(ICryptAlgorithm cryptAlgorithm) {
