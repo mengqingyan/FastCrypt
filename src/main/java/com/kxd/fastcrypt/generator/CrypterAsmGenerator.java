@@ -4,11 +4,15 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.security.ProtectionDomain;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
 import com.kxd.fastcrypt.Crypter;
@@ -26,6 +30,9 @@ import net.sf.cglib.core.*;
  * @author mengqingyan 2019/2/15
  */
 public class CrypterAsmGenerator implements CrypterGenerator{
+
+    private static final Logger logger = LoggerFactory.getLogger(CrypterAsmGenerator.class);
+
     private static final CrypterKey KEY_FACTORY = (CrypterKey) KeyFactory.create(CrypterKey.class);
 
     private static final Type CRYPTER = TypeUtils.parseType(Crypter.class.getCanonicalName());
@@ -103,6 +110,8 @@ public class CrypterAsmGenerator implements CrypterGenerator{
         private static final Source SOURCE = new Source(Crypter.class.getName());
 
         private static final Map<Class, Object> singletonMap = new HashMap<Class, Object>();
+
+        private final Set<Class> visitedClassSet = new HashSet<Class>();
 
         private Class target;
         private IterableCryptHandler iterableCryptHandler;
@@ -218,6 +227,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
         }
 
         private void visitTarget(CodeEmitter e, Local targetLocal, Class target, Signature encryptM) {
+            visitedClassSet.add(target);
             PropertyDescriptor[] setters = ReflectUtils.getBeanSetters(target);
             for (int i = 0; i < setters.length; i++) {
                 PropertyDescriptor setter = setters[i];
@@ -230,6 +240,12 @@ public class CrypterAsmGenerator implements CrypterGenerator{
                     if (!this.cryptAcceptor.acceptField(propField)) {
                         continue;
                     }
+                    Class<?> aClass = propField.getType();
+
+                    if(isCircle(aClass, visitedClassSet)) {
+                        continue;
+                    }
+
                     MethodInfo read = ReflectUtils.getMethodInfo(setter.getReadMethod());
                     MethodInfo write = ReflectUtils.getMethodInfo(setter.getWriteMethod());
 
@@ -246,7 +262,7 @@ public class CrypterAsmGenerator implements CrypterGenerator{
 
                     e.ifnull(lablex);
 
-                    Class<?> aClass = propField.getType();
+
                     if (Iterable.class.isAssignableFrom(aClass)) {
                         e.load_local(targetLocal);
                         e.load_this();
@@ -280,6 +296,41 @@ public class CrypterAsmGenerator implements CrypterGenerator{
                     }
                     e.mark(lablex);
             }
+        }
+
+        private boolean isCircle(final Class<?> aClass, final Set<Class> visitedClassSet) {
+            final Set<Class> containedFieldTypeSet = new HashSet<Class>();
+            ReflectionUtils.doWithFields(aClass, new ReflectionUtils.FieldCallback() {
+
+                public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                    Class<?> type = field.getType();
+                    if(visitedClassSet.contains(type)) {
+                        containedFieldTypeSet.add(type);
+                    }
+                }
+            });
+            if(containedFieldTypeSet.isEmpty()) {
+                return false;
+            }
+            final boolean[] find = new boolean[1];
+            for (final Class containedFieldType : containedFieldTypeSet) {
+                ReflectionUtils.doWithFields(containedFieldType, new ReflectionUtils.FieldCallback() {
+
+                    public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                        Class<?> type = field.getType();
+                        if(aClass.equals(type)) {
+                            logger.warn("find circle when generateClass: {}, detail: [{}] <--> [{}]",
+                                    new Object[]{target, aClass, containedFieldType});
+                            find[0] = true;
+                        }
+                    }
+                });
+                if(find[0] == true) {
+                    break;
+                }
+            }
+
+            return find[0];
         }
 
         private Field getPropField(PropertyDescriptor setter, Class target) {

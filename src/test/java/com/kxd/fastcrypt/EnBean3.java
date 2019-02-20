@@ -3,9 +3,10 @@ package com.kxd.fastcrypt;
 /**
  * @author mengqingyan 2019/2/14
  */
-public class EnBean3 extends EnBean{
+public class EnBean3 {
 
-   private String otherName;
+    @Encrypt
+    private String otherName;
 
     public String getOtherName() {
         return otherName;

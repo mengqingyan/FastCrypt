@@ -8,7 +8,7 @@ import com.kxd.fastcrypt.Crypter;
 public interface CrypterGenerator {
 
     /**
-     * 对目标类，产生加解密处理类，目标类中，禁止出现循环引用
+     * 对目标类，产生加解密处理类
      * @param targetClazz
      * @return
      */

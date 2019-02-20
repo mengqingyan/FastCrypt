@@ -12,7 +12,16 @@ public class EnBean2 {
 
     @Encrypt
     private String idNo;
+    @Encrypt
+    private EnBean3 enBean3;
 
+    public EnBean3 getEnBean3() {
+        return enBean3;
+    }
+
+    public void setEnBean3(EnBean3 enBean3) {
+        this.enBean3 = enBean3;
+    }
 
     public String getName() {
         return name;

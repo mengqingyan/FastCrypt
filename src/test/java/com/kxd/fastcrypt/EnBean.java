@@ -9,6 +9,9 @@ import java.util.Set;
 public class EnBean {
 
     @Encrypt
+    private EnBean enBean;
+
+    @Encrypt
     private String name;
 
     private String idType;
@@ -18,6 +21,12 @@ public class EnBean {
 
     @Encrypt
     private EnBean2 enBean2;
+
+    @Encrypt
+    private EnBean2 enBean22;
+
+    @Encrypt
+    private EnBean3 enBean3;
 
     private Object obj;
 
@@ -29,6 +38,30 @@ public class EnBean {
     private Set<String> subNameSet;
     @Encrypt
     private List otherList;
+
+    public EnBean3 getEnBean3() {
+        return enBean3;
+    }
+
+    public void setEnBean3(EnBean3 enBean3) {
+        this.enBean3 = enBean3;
+    }
+
+    public EnBean2 getEnBean22() {
+        return enBean22;
+    }
+
+    public void setEnBean22(EnBean2 enBean22) {
+        this.enBean22 = enBean22;
+    }
+
+    public EnBean getEnBean() {
+        return enBean;
+    }
+
+    public void setEnBean(EnBean enBean) {
+        this.enBean = enBean;
+    }
 
     public List getOtherList() {
         return otherList;
